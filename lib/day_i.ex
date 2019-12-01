@@ -3,10 +3,6 @@ defmodule DayI do
   Documentation for DayI.
   """
 
-  def hello do
-    :world
-  end
-
   def required_fuel(input_path) do
     read_input_file(input_path)
     |> Enum.map(&DayI.calculate_fuel_for_mass/1)
