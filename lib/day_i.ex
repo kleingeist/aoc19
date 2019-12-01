@@ -25,16 +25,16 @@ defmodule DayI do
 
   def calculate_fuel_for_module(mass) do
     fuel = calculate_fuel_for_mass(mass)
-    calculate_fuel_recursive(fuel)
+    calculate_fuel_recursive(fuel, 0)
   end
 
-  # TODO: not end recursive
-  def calculate_fuel_recursive(fuel) when fuel <= 0 do
-    0
+  def calculate_fuel_recursive(fuel, total_fuel) when fuel <= 0 do
+    total_fuel
   end
 
-  def calculate_fuel_recursive(fuel) do
-    fuel + calculate_fuel_recursive(calculate_fuel_for_mass(fuel))
+
+  def calculate_fuel_recursive(fuel, total_fuel) do
+    calculate_fuel_recursive(calculate_fuel_for_mass(fuel), total_fuel + fuel)
   end
 
   def read_input_file(path) do
