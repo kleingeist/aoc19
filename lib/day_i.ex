@@ -5,13 +5,13 @@ defmodule DayI do
 
   def required_fuel(input_path) do
     read_input_file(input_path)
-    |> Enum.map(&DayI.calculate_fuel_for_mass/1)
+    |> Enum.map(&calculate_fuel_for_mass/1)
     |> Enum.sum
   end
 
   def required_fuel_recursive(input_path) do
     read_input_file(input_path)
-    |> Enum.map(&DayI.calculate_fuel_for_module/1)
+    |> Enum.map(&calculate_fuel_for_module/1)
     |> Enum.sum
   end
 
@@ -27,7 +27,6 @@ defmodule DayI do
   def calculate_fuel_recursive(fuel, total_fuel) when fuel <= 0 do
     total_fuel
   end
-
 
   def calculate_fuel_recursive(fuel, total_fuel) do
     calculate_fuel_recursive(calculate_fuel_for_mass(fuel), total_fuel + fuel)
