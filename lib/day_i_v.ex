@@ -6,7 +6,7 @@ defmodule DayIV do
   def possible_passes2() do
     possible_passes()
     |> Enum.map(&to_int_list/1)
-    |> Enum.filter  (&is_pass2/1)
+    |> Enum.filter(&is_pass2/1)
   end
 
   defp is_pass2([head | int_list]) do
@@ -89,7 +89,7 @@ defmodule DayIV do
     true
   end
 
-  defp has_doubles([head | tail]) do
+  defp has_doubles([_ | tail]) do
     has_doubles(tail)
   end
 
