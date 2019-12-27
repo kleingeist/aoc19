@@ -15,4 +15,10 @@ defmodule IntUtils do
     |> Enum.sum
   end
 
+  def read_intlist(input_file) do
+      File.read!(input_file)
+        |> String.split(",")
+        |> Enum.map(&String.trim/1)
+        |> Enum.map(&String.to_integer/1)
+  end
 end

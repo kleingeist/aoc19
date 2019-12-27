@@ -19,13 +19,18 @@ defmodule IntCodeInterpreter do
 
   defp _run(pos, program, input) do
     {opcode, modes} = parse_op(pos, program)
+    param_pos = pos + 1
     case opcode do
       :undefined -> raise "end of program"
       99 -> :array.get(0, program)
-      1 -> add(pos + 1, program, modes, input)
-      2 -> mul(pos + 1, program, modes, input)
-      3 -> read_input(pos + 1, program, modes, input)
-      4 -> write_output(pos + 1, program, modes, input)
+      1 -> add(param_pos, program, modes, input)
+      2 -> mul(param_pos, program, modes, input)
+      3 -> read_input(param_pos, program, modes, input)
+      4 -> write_output(param_pos, program, modes, input)
+      5 -> jump_if(true, param_pos, program, modes, input)
+      6 -> jump_if(false, param_pos, program, modes, input)
+      7 -> cmp(&</2, param_pos, program, modes, input)
+      8 -> cmp(&==/2, param_pos, program, modes, input)
     end
   end
 
@@ -44,21 +49,21 @@ defmodule IntCodeInterpreter do
   end
 
   defp add(pos, program, modes, input) do
-    [x, y, out] = parse_params_write(pos, program, 3, modes)
+    [x, y, out] = parse_params_out(pos, program, 3, modes)
     sum = x + y
     result = :array.set(out, sum, program)
     _run(pos + 3, result, input)
   end
 
   defp mul(pos, program, modes, input) do
-    [x, y, out] = parse_params_write(pos, program, 3, modes)
+    [x, y, out] = parse_params_out(pos, program, 3, modes)
     prod = x * y
     result = :array.set(out, prod, program)
     _run(pos + 3, result, input)
   end
 
   defp read_input(pos, program, modes, input) do
-    [out] = parse_params_write(pos, program, 1, modes)
+    [out] = parse_params_out(pos, program, 1, modes)
     result = :array.set(out, input, program)
     _run(pos + 1, result, input)
   end
@@ -69,7 +74,25 @@ defmodule IntCodeInterpreter do
     _run(pos + 1, program, input)
   end
 
-  defp parse_params_write(pos, program, num, modes) do
+  defp jump_if(condition, pos, program, modes, input) do
+    [val, pos_jump] = parse_params(pos, program, 2, modes)
+    is_truthy = (val != 0)
+    cond do
+      is_truthy == condition -> _run(pos_jump, program, input)
+      true -> _run(pos + 2, program, input)
+    end
+  end
+
+  defp cmp(comparator, pos, program, modes, input) do
+    [x, y, out] = parse_params_out(pos, program, 3, modes)
+    result = case comparator.(x, y) do
+      true -> :array.set(out, 1, program)
+      false -> :array.set(out, 0, program)
+    end
+    _run(pos + 3, result, input)
+  end
+
+  defp parse_params_out(pos, program, num, modes) do
     {params_in, params_out} = Enum.map(pos..(pos + num - 1), &:array.get(&1, program)) |> Enum.split(-1)
     params = parse_params(program, params_in, modes) ++ params_out
     if Enum.any?(params, &(&1 == :undefined)) do
