@@ -30,7 +30,7 @@ defmodule DayX do
       read_asteroids(input_file)
       |> parse_asteroids()
 
-      Enum.max_by(asteroids, fn station -> run_radar(station, asteroids) |> Enum.count() end)
+    Enum.max_by(asteroids, fn station -> run_radar(station, asteroids) |> Enum.count() end)
   end
 
   def sights(asteroids) do
@@ -63,14 +63,10 @@ defmodule DayX do
   @spec run_radar(any, any) :: [any]
   def run_radar(station, asteroids) do
     Enum.reject(asteroids, &(&1 == station))
-    |> Enum.map(fn asteroid ->
-      a = {station, asteroid}
-      {asteroid, get_slope(a), get_distance(a)}
-    end)
-    |> Enum.group_by(&elem(&1, 1))
-    |> Enum.map(fn {key, value} -> {key, Enum.sort_by(value, &elem(&1, 2))} end)
+    |> Enum.sort_by(&get_distance({station, &1}))
+    |> Enum.group_by(&get_slope({station, &1}))
     |> Enum.sort_by(fn {slope, _} -> get_angle(slope) end)
-    |> Enum.map(fn {_, value} -> value end)
+    |> Enum.map(fn {_, asteroid} -> asteroid end)
   end
 
   def turnit([[asteroid | line] | radar], next, acc) do
